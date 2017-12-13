@@ -1,5 +1,8 @@
 Changelog:
 
+Version 0.8.0 (2017-12-13)
+    - Added support for construct version 2.8.*
+
 Version 0.7.2 (2013-02-05)
     - Initial beamformer system
 
@@ -23,14 +26,14 @@ Version 0.6.9 ()
     - corr_nb and corr_wb for functions specific to narrowband/wideband modes.
     - Introduced corr_ddc placeholder.
     - register description/bitfields now separate
-    - snapshots now unpacked by snap.py  
+    - snapshots now unpacked by snap.py
 
 Version 0.6.8 (2011-08-03):
     - Bugfix to n_accs calc with changes to acc_n_set/get
 
 Version 0.6.7 (2011-07-20):
     - More reliable rx.py for interleaved RX mode. No more repeated accumulations.
-    - Began adding functions for upcoming narrowband mode. 
+    - Began adding functions for upcoming narrowband mode.
     - Started generalising bitfields
 
 Version 0.6.6 (2011-04-04):
@@ -64,12 +67,12 @@ Version 0.6.2 (2010-11-26):
     - Fix to corr_xstatus.py for case where F engines have 10GbE out and X engines have 10GbE (fabric) output.
     - Mod to corr_rx_cont_h5.py to allow for commanline disable of n_acc scaleback.
     - Mod to corr_arm to resync vaccs after rearm.
-     
+
 Version 0.6.1 (2010-11-25):
     - Fix to corr_snap_quant.py script.
 
 Version 0.6.0
-    - Support added for F engines that output data directly on 10GbE ports (ie no XAUI loopback through X engines). 
+    - Support added for F engines that output data directly on 10GbE ports (ie no XAUI loopback through X engines).
     - Support added for X engines that process contiguous frequency chunks.
     - Should be backwards compatible with XAUI systems and X engines that process interleaved channels (corr-0.5.1).
     - Error handling mostly unified and coded to use logging everywhere rather than printing errors to the console.
@@ -98,6 +101,5 @@ Version 0.4.2: 2010-04-02
      *) cn_tx.py replaced by corr_tx.py
      *) cleanup of some functions.
 
-Version 0.4.0 
-    - KATCP control protocol. 
-
+Version 0.4.0
+    - KATCP control protocol.

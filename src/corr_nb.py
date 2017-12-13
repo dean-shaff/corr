@@ -5,7 +5,13 @@ Setup and unique functionality for the narrow-band correlator modes. Here narrow
 Revisions:
 2011-07-07  PVP  Initial revision.
 """
-import numpy, struct, construct, corr_functions, snap
+import numpy
+import struct
+import snap
+
+import construct
+
+from . import corr_functions
 
 def bin2fp(bits, m = 8, e = 7):
     if m > 32:
@@ -84,7 +90,7 @@ register_xengine_control = construct.BitStruct('ctrl',
     construct.Padding(15 - 12 - 1),     # 13-14
     construct.Flag('flasher_en'),       # 12    Enable the "knightrider" pattern on the front LED panel.
     construct.Flag('gbe_out_rst'),      # 11
-    construct.Flag('loopback_mux_rst'), # 10    
+    construct.Flag('loopback_mux_rst'), # 10
     construct.Flag('gbe_enable'),       # 9     Enable the 10GBE core.
     construct.Flag('cnt_rst'),          # 8     Reset the packet counter.
     construct.Flag('clr_status'),       # 7     Clear the status registers.
@@ -114,9 +120,9 @@ register_xengine_tvg_sel = construct.BitStruct('tvg_sel',
 
 # the snap_rx block on the x-engine
 snap_xengine_rx = construct.BitStruct("snap_rx0",
-    construct.Padding(128 - 64 - 16 - 5 - 28 - 15), 
-    construct.BitField("ant", 15), 
-    construct.BitField("mcnt", 28), 
+    construct.Padding(128 - 64 - 16 - 5 - 28 - 15),
+    construct.BitField("ant", 15),
+    construct.BitField("mcnt", 28),
     construct.Flag("loop_ack"),
     construct.Flag("gbe_ack"),
     construct.Flag("valid"),
@@ -144,7 +150,7 @@ snap_xengine_vacc = construct.BitStruct("snap_vacc0", construct.BitField("data",
 def fft_shift_coarse_set_all(correlator, shift = -1):
     """
     Set the per-stage shift for the coarse channelisation FFT on all correlator f-engines.
-    """    
+    """
     if shift < 0:
         shift = correlator.config['fft_shift_coarse']
     corr_functions.write_masked_register(correlator.ffpgas, register_fengine_coarse_control, fft_shift = shift)
@@ -528,7 +534,7 @@ def get_quant_spectrum(c, fpgas = None):
     raise RuntimeError('NOT YET COMPLETE. SORRY.')
     num_chans = c.config['n_chans']
     rv = []
-    spectrum = 3 
+    spectrum = 3
     return spectrum
 
 snap_fengine_debug_ct = construct.BitStruct(snap_debug,
@@ -590,13 +596,13 @@ def get_snap_xaui(c, fpgas = [], offset = -1, man_trigger = False, man_valid = F
     snap_data = snap.snapshots_get(fpgas = fpgas, dev_names = snap_debug, wait_period = wait_period, offset = offset, man_trig = man_trigger, man_valid = man_valid, circular_capture = False)
     return snap_data
 
-snap_fengine_gbe_tx = construct.BitStruct("snap_debug", 
-    construct.Padding(128 - 64 - 32 - 6),  
-    construct.Flag("eof"), 
-    construct.Flag("link_up"), 
-    construct.Flag("led_tx"), 
-    construct.Flag("tx_full"), 
-    construct.Flag("tx_over"), 
+snap_fengine_gbe_tx = construct.BitStruct("snap_debug",
+    construct.Padding(128 - 64 - 32 - 6),
+    construct.Flag("eof"),
+    construct.Flag("link_up"),
+    construct.Flag("led_tx"),
+    construct.Flag("tx_full"),
+    construct.Flag("tx_over"),
     construct.Flag("valid"),
     construct.BitField("ip_addr", 32),
     construct.BitField("data", 64))

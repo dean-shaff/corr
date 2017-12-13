@@ -6,8 +6,13 @@ Revs:
 2012-01-09: JRM rx_snap now accepts fpga_ids instead of xeng core ids.
 
 """
+import time
+import logging
 
-import corr, numpy, time, construct, logging
+import numpy
+import construct
+
+from . import corr_wb, corr_nb
 
 def snapshots_arm(fpgas, dev_names, man_trig, man_valid, offset, circular_capture):
     if offset >=0:
@@ -105,7 +110,7 @@ def get_adc_snapshots(correlator, ant_strs = [], trig_level = -1, sync_to_pps = 
         dev_names.append('adc_snap%i' % feng_input)
 
     #if correlator.is_narrowband():
-    #    return corr.corr_nb.get_adc_snapshot(c = correlator, ant_names = ant_strs, trig_level = trig_level, sync_to_pps = sync_to_pps)
+    #    return corr_nb.get_adc_snapshot(c = correlator, ant_names = ant_strs, trig_level = trig_level, sync_to_pps = sync_to_pps)
 
     init_mcnt = correlator.mcnt_current_get(ant_str = ant_strs[0])
     mcnt_lsbs = init_mcnt & 0xffffffff
@@ -158,9 +163,9 @@ def get_quant_snapshot(correlator, ant_str, n_spectra = 1, man_trig = False, man
             tempdata = []
             offset = 0
             while len(tempdata) < correlator.config['n_chans']:
-                #quanttemp = corr.corr_nb.get_snap_quant(correlator, [fpga], offset = offset)[0][feng_input]
+                #quanttemp = corr_nb.get_snap_quant(correlator, [fpga], offset = offset)[0][feng_input]
                 logging.debug('get_quant_snapshot: nb, read snap - have %i/%i channels' % (len(tempdata), correlator.config['n_chans']))
-                quanttemp = corr.corr_nb.get_snap_quant_wbc_compat(correlator, [fpga], offset = offset)[0][feng_input]
+                quanttemp = corr_nb.get_snap_quant_wbc_compat(correlator, [fpga], offset = offset)[0][feng_input]
                 tempdata.extend(quanttemp)
                 # the debug snap block is 1024 128-bit words, so it's 16kbytes long. The offset is in BYTES!
                 # the data in tempdata represents 128-bit WORDS
@@ -195,9 +200,9 @@ def get_rx_snapshot(correlator, xfpgas = [], snapname = 'snap_rx0'):
        xfpgas = correlator.xfpgas
     raw = snapshots_get(xfpgas, snapname, wait_period = 3, circular_capture = False, man_trig = False)
     if correlator.is_wideband():
-        rx_bf = corr.corr_wb.snap_xengine_rx
+        rx_bf = corr_wb.snap_xengine_rx
     elif correlator.is_narrowband():
-        rx_bf = corr.corr_nb.snap_xengine_rx
+        rx_bf = corr_nb.snap_xengine_rx
     else: raise RuntimeError('Unknown mode. Cannot get rx snapshot.')
     unp_rpt = construct.GreedyRepeater(rx_bf)
     rv = []
@@ -217,9 +222,9 @@ def get_gbe_rx_snapshot(correlator, xfpgas = [], snapname = 'snap_gbe_rx0'):
        xfpgas = correlator.xfpgas
     raw = snapshots_get(xfpgas, snapname, wait_period = 3, circular_capture = False, man_trig = False)
     if correlator.is_wideband():
-        rx_bf = corr.corr_wb.snap_xengine_gbe_rx
+        rx_bf = corr_wb.snap_xengine_gbe_rx
     elif correlator.is_narrowband():
-        rx_bf = corr.corr_nb.snap_xengine_gbe_rx
+        rx_bf = corr_nb.snap_xengine_gbe_rx
     else:
         raise RuntimeError('Unknown mode. Cannot get gbe rx snapshot.')
     unp_rpt = construct.GreedyRepeater(rx_bf)
@@ -234,7 +239,7 @@ def get_gbe_rx_snapshot(correlator, xfpgas = [], snapname = 'snap_gbe_rx0'):
 
 def get_gbe_tx_snapshot_xeng(correlator, snapnames = 'snap_gbe_tx0', offset = -1, man_trigger = False, man_valid = False):
     raw = snapshots_get(correlator.xfpgas, dev_names = snapnames, wait_period = 3, circular_capture = False, man_trig = man_trigger, offset = offset, man_valid = man_valid)
-    unp_rpt = construct.GreedyRepeater(corr.corr_wb.snap_xengine_gbe_tx)
+    unp_rpt = construct.GreedyRepeater(corr_wb.snap_xengine_gbe_tx)
     rv = []
     for index, d in enumerate(raw['data']):
         v = {}
@@ -245,7 +250,7 @@ def get_gbe_tx_snapshot_xeng(correlator, snapnames = 'snap_gbe_tx0', offset = -1
 
 def get_gbe_tx_snapshot_feng(correlator, snap_name = 'snap_gbe_tx0', offset = -1, man_trigger = False, man_valid = False):
     raw = snapshots_get(correlator.ffpgas, dev_names = snap_name, wait_period = 3, circular_capture = False, man_trig = man_trigger, offset = offset)
-    unp_rpt = construct.GreedyRepeater(corr.corr_wb.snap_fengine_gbe_tx)
+    unp_rpt = construct.GreedyRepeater(corr_wb.snap_fengine_gbe_tx)
     rv = []
     #step though each FPGA for which we got snap data:
     for index, d in enumerate(raw['data']):
@@ -264,19 +269,19 @@ def get_gbe_tx_snapshot_feng(correlator, snap_name = 'snap_gbe_tx0', offset = -1
 def get_xaui_snapshot(correlator, snap_name = None, offset = -1, man_trigger = False, man_valid = False, wait_period = 3):
     """Grabs data from fengines' TX xaui blocks"""
     if correlator.is_wideband():
-        snap_bitfield = corr.corr_wb.snap_fengine_xaui
+        snap_bitfield = corr_wb.snap_fengine_xaui
         if snap_name == None:
             dev_name = 'snap_xaui0'
         else:
             dev_name = snap_name
         raw = snapshots_get(correlator.ffpgas, dev_names = dev_name, wait_period = wait_period, circular_capture = False, man_trig = man_trigger, offset = offset, man_valid = man_valid)
     elif correlator.is_narrowband():
-        snap_bitfield = corr.corr_nb.snap_fengine_xaui
+        snap_bitfield = corr_nb.snap_fengine_xaui
         if snap_name == None:
             dev_name = 'snap_xaui'
         else:
             dev_name = snap_name
-        raw = corr.corr_nb.get_snap_xaui(correlator, correlator.ffpgas, offset = offset, man_trigger = man_trigger, man_valid = man_valid, wait_period = wait_period)
+        raw = corr_nb.get_snap_xaui(correlator, correlator.ffpgas, offset = offset, man_trigger = man_trigger, man_valid = man_valid, wait_period = wait_period)
     else:
         raise RuntimeError('Unsupported correlator type.')
     unpack_repeater = construct.GreedyRepeater(snap_bitfield)
@@ -294,4 +299,3 @@ def get_xaui_snapshot(correlator, snap_name = None, offset = -1, man_trigger = F
             dp['link_up'] = False
         rv.append(v)
     return rv
-

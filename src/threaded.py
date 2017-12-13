@@ -1,4 +1,4 @@
-import katcp_wrapper
+from . import katcp_wrapper
 
 def fpga_operation(fpga_list, num_threads = -1, job_function = None, *job_args):
     """Run a provided method on a list of FpgaClient objects in a specified number of threads.
@@ -7,9 +7,9 @@ def fpga_operation(fpga_list, num_threads = -1, job_function = None, *job_args):
     @param num_threads: how many threads should be used. Default is one per list item
     @param job_function: the function to be run - MUST take the FpgaClient object as its first argument
     @param *args: further arugments for the job_function
-   
+
     @return a dictionary of results from the functions, keyed on FpgaClient.host
- 
+
     """
 
     """
@@ -78,4 +78,3 @@ def fpga_operation(fpga_list, num_threads = -1, job_function = None, *job_args):
         res = result_queue.get()
         rv[res[0]] = res[1]
     return rv
-

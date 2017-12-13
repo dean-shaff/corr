@@ -1,4 +1,3 @@
-import iniparse, exceptions, socket, struct, numpy, os, logging, corr
 """
 Library for parsing CASPER correlator configuration files
 
@@ -6,6 +5,8 @@ Author: Jason Manley
 """
 """
 Revs:
+2017-12-13: Modified imports for PEP 8 compliance, and changed old-style classes
+                to new-style classes.
 2011-07-28: PVP Added mode support so we can load different params for wideband, narrowband,
                 as well as common params. The 'correlator' section of the config file must
                 include a mode parameter now. See code for modes.
@@ -23,6 +24,17 @@ Revs:
                 Changed max_payload_len to rx_buffer_size
 
 """
+import iniparse
+import exceptions
+import socket
+import struct
+import os
+import logging
+
+import numpy
+
+from . import log_handlers
+
 LISTDELIMIT = ','
 PORTDELIMIT = ':'
 
@@ -32,11 +44,11 @@ MODE_WB  = 'wbc'
 MODE_NB  = 'nbc'
 MODE_DDC = 'ddc'
 
+class CorrConf(object):
 
-class CorrConf:    
     def __init__(self, config_file,log_handler=None,log_level=logging.INFO):
         self.logger = logging.getLogger('cn_conf')
-        self.log_handler = log_handler if log_handler != None else corr.log_handlers.DebugLogHandler(100)
+        self.log_handler = log_handler if log_handler != None else log_handlers.DebugLogHandler(100)
         self.logger.addHandler(self.log_handler)
         self.logger.setLevel(log_level)
 
@@ -120,7 +132,7 @@ class CorrConf:
             return input_n
         except:
             raise RuntimeError('Unable to map antenna')
-        
+
     def map_input_to_ant(self,input_n):
         """Maps an input number to an antenna string."""
         return self._get_ant_mapping_list()[input_n]
@@ -290,9 +302,9 @@ class CorrConf:
 
         spead_flavour=self.get_line('receiver','spead_flavour')
         self.config['spead_flavour'] = tuple([int(i) for i in spead_flavour.split(LISTDELIMIT)])
-        if self.config['spead_flavour'][1]<(48-numpy.log2(self.config['n_chans'])): 
+        if self.config['spead_flavour'][1]<(48-numpy.log2(self.config['n_chans'])):
             self.config['spead_timestamp_scale_factor']=(self.config['pcnt_scale_factor']/self.config['n_chans'])
-        else: 
+        else:
             self.config['spead_timestamp_scale_factor']=(int(self.config['pcnt_scale_factor'])<<int(numpy.log2(self.config['n_chans']) - (48-self.config['spead_flavour'][1])))/float(self.config['n_chans'])
 
         #equalisation section:
@@ -300,7 +312,7 @@ class CorrConf:
         self.read_str('equalisation','eq_type')
         self.read_int('equalisation','eq_decimation')
         #self.read_int('equalisation','eq_brams_per_pol_interleave')
-        
+
         if not self.config['eq_default'] in ['poly','coeffs']: raise RuntimeError('ERR invalid eq_default')
 
         if self.config['eq_default'] == 'poly':
@@ -308,7 +320,7 @@ class CorrConf:
                 try:
                     ant_eq_str=self.get_line('equalisation','eq_poly_%i'%(input_n))
                     self.config['eq_poly_%i'%(input_n)]=[int(coef) for coef in ant_eq_str.split(LISTDELIMIT)]
-                except: 
+                except:
                     raise RuntimeError('ERR eq_poly_%i'%(input_n))
 
         #we need to try to read eq_coeffs every time so that this info is available to corr_functions even if it's not how we default program the system.
@@ -333,7 +345,7 @@ class CorrConf:
             self.read_str('beamformer', 'bf_cal_type')
             self.read_int('beamformer', 'bf_cal_n_bits')
             self.read_int('beamformer', 'bf_cal_bin_pt')
-            
+
             for beam_n in range(self.config['bf_n_beams']):
 
                 self.read_int('beamformer', 'bf_centre_frequency_beam%i'%beam_n)
@@ -352,7 +364,7 @@ class CorrConf:
                 #ip destination for spead meta data
                 meta_ip_str=self.get_line('beamformer','bf_rx_meta_ip_str_beam%i'%(beam_n))
                 self.config['bf_rx_meta_ip_str_beam%i'%(beam_n)]=meta_ip_str
-                self.config['bf_rx_meta_ip_beam%i'%(beam_n)]=struct.unpack('>I',socket.inet_aton(meta_ip_str))[0] 
+                self.config['bf_rx_meta_ip_beam%i'%(beam_n)]=struct.unpack('>I',socket.inet_aton(meta_ip_str))[0]
                 #port destination for spead meta data
                 self.read_int('beamformer', 'bf_rx_meta_port_beam%i'%(beam_n))
 
@@ -365,7 +377,7 @@ class CorrConf:
 			self.config['bf_cal_default_input%i_beam%i'%(input_n, beam_n)]=cal_default
                     except:
                         raise RuntimeError('ERR reading bf_cal_default_input%i_beam%i'%(input_n, beam_n))
-		    if cal_default == 'poly': 
+		    if cal_default == 'poly':
 		        try:
 			    ant_cal_str=self.get_line('beamformer','bf_cal_poly_input%i_beam%i'%(input_n, beam_n))
 			    self.config['bf_cal_poly_input%i_beam%i'%(input_n, beam_n)]=[int(coef) for coef in ant_cal_str.split(LISTDELIMIT)]
@@ -379,12 +391,12 @@ class CorrConf:
 		        except: raise RuntimeError('ERR bf_cal_coeffs_input%i_beam%i'%(input_n, beam_n))
 		    else:
 		        raise RuntimeError('ERR bf_cal_default_input%i_beam%i not poly or coeffs'%(input_n, beam_n))
-            
+
             self.logger.info('%i beam beamformer found in this design outputting %s data.'%(self.config['bf_n_beams'], self.config['bf_data_type']))
         except Exception:
             self.logger.info('No beamformer found in this design')
             return
-    
+
     def write(self,section,variable,value):
         print 'Writing to the config file. Mostly, this is a bad idea. Mostly. Doing nothing.'
         return

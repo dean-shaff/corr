@@ -3,9 +3,12 @@ Setup and unique functionality for the wide-band correlator modes. A wideband co
 """
 """
 Revisions:
+2017-12-13 PEP 8 compliance
 2011-07-07  PVP  Initial revision.
 """
-import construct, corr_functions
+import construct
+
+from . import corr_functions
 
 # f-engine control register
 register_fengine_control = construct.BitStruct('control',
@@ -81,7 +84,7 @@ register_xengine_tvg_sel = construct.BitStruct('tvg_sel',
 
 snap_xengine_rx = construct.BitStruct("snap_rx0",
     construct.Padding(128 - 64 - 16 - 5 - 28 - 15),
-    construct.BitField("ant", 15), 
+    construct.BitField("ant", 15),
     construct.BitField("mcnt", 28),
     construct.Flag("loop_ack"),
     construct.Flag("gbe_ack"),
@@ -104,7 +107,7 @@ snap_xengine_gbe_rx = construct.BitStruct("snap_gbe_rx0",
     construct.BitField("data", 64))
 
 snap_xengine_gbe_tx = construct.BitStruct("snap_gbe_tx0",
-        construct.Padding(128 - 64 - 32 - 6), 
+        construct.Padding(128 - 64 - 32 - 6),
         construct.Flag("eof"),
         construct.Flag("link_up"),
         construct.Flag("led_tx"),
@@ -130,7 +133,7 @@ snap_fengine_xaui = construct.BitStruct("snap_xaui0",
     construct.BitField("data", 64))
 
 snap_fengine_gbe_tx = construct.BitStruct("snap_gbe_tx0",
-    construct.Padding(128 - 64 - 32 - 6), 
+    construct.Padding(128 - 64 - 32 - 6),
     construct.Flag("eof"),
     construct.Flag("link_up"),
     construct.Flag("led_tx"),

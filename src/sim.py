@@ -10,7 +10,9 @@ Revisions:
 
 """
 
-import struct, time, math
+import struct
+import time
+import math
 
 def xeng_encode(freq,n_xeng=8, n_chans=2048,adc_clk=600,ddc_decimation=4,ddc_mix_freq=0.25):
     bandwidth = adc_clk/ddc_decimation
@@ -28,7 +30,7 @@ def xeng_encode(freq,n_xeng=8, n_chans=2048,adc_clk=600,ddc_decimation=4,ddc_mix
     out['group'] = int(chan/n_xeng)
     return out
 
-def xeng_decode(x_eng,chan,n_xeng=8, n_chans=2048,adc_clk=600,ddc_decimation=4,ddc_mix_freq=0.25):    
+def xeng_decode(x_eng,chan,n_xeng=8, n_chans=2048,adc_clk=600,ddc_decimation=4,ddc_mix_freq=0.25):
     bandwidth = float(adc_clk)/ddc_decimation
     chan_bw = bandwidth/n_chans
     print chan_bw
@@ -44,7 +46,7 @@ def xeng_decode(x_eng,chan,n_xeng=8, n_chans=2048,adc_clk=600,ddc_decimation=4,d
     return freq
 
 def addr_decode(address,vector_len=18432):
-    """Calculates which bank,row,rank,column and block a particular 
+    """Calculates which bank,row,rank,column and block a particular
     address maps to. Good for BEE2 1GB DRAMs."""
     if vector_len > 512:
         bit_shift = int(math.ceil(math.log(float(vector_len)/512.0,2)))
@@ -74,14 +76,14 @@ def addr_encode(int_num=0,offset=0,vector_len=18432):
     block_row_bits = 14-bit_shift
 
     bank = int_num & 3
-    block_row = (int_num >> 2) & ((2**block_row_bits)-1) 
+    block_row = (int_num >> 2) & ((2**block_row_bits)-1)
     rank = (int_num>>(block_row_bits + 2))
 
     column = offset & ((2**9)-1)
     row_offset = (offset >> 9)
 
     address = (column << 4) + (rank<<13) + (row_offset << 14) + (block_row<<(14 + bit_shift)) + (bank << 28)
-    
+
     #print bank,bit_shift, block_row, block_row_bits, rank, column, row_offset
     return address
 
@@ -92,7 +94,7 @@ def ij2bl(i, j):
     return ((i+1) << 8) | (j+1)
 
 def bl2ij(bl):
-    """Convert from Miriad's baseline notation (counting from 1, a 16 bit 
+    """Convert from Miriad's baseline notation (counting from 1, a 16 bit
     number) to i, j baseline notation (counting from 0)."""
     return ((bl >> 8) & 255) - 1, (bl & 255) - 1
 
@@ -109,7 +111,7 @@ def get_bl_order(n_ants):
     return tuple([o for o in order1 + order2])
 
 def get_bl_order_sp(n_inputs):
-    """Return the order of baseline data output by a dual-polarisation 
+    """Return the order of baseline data output by a dual-polarisation
         CASPER correlator X engine when remapped as a single pol system."""
     dp_bls=get_bl_order(n_inputs/2)
     rv=[]
@@ -121,7 +123,7 @@ def get_bl_order_sp(n_inputs):
     return rv
 
 def encode_32bit(i, j, stokes, r_i, chan):
-    """Encode baseline, stokes, real/imaginary, and frequency info as 
+    """Encode baseline, stokes, real/imaginary, and frequency info as
     a 32 bit unsigned integer."""
     return (r_i << 31) | (stokes << 29) | (chan << 16) | ij2bl(i,j)
 
@@ -213,8 +215,7 @@ class XEngine:
 #        fmt = '%s%dI' % (endian, len(data))
 #        return struct.pack(fmt, *data)
 #
-#        
+#
 #
 ##class PacketSimulator:
 ##   def __init__(self, nant, nchan, npol):
-

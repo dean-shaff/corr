@@ -1,4 +1,8 @@
-import numpy, time, sys, logging
+import time
+import sys
+import logging
+
+import numpy
 
 logger = logging.getLogger(__name__)
 
@@ -24,16 +28,16 @@ class Sfp_mezzanine_card(object):
         '''
         self.fpga.write_int('sfp_gpio_data_ded', 0x618)     # See SW enable status below:
         '''
-        # mgt_gpio[11]  Unused 
+        # mgt_gpio[11]  Unused
         # ENABLE SW CONTROL => mgt_gpio[10]  SFP1: MDIO          MDIO data line
         # ENABLE SW CONTROL => mgt_gpio[9]   SFP1: MDC           MDIO clock line
         # mgt_gpio[8]   SFP1: PHY1 RESET    PHY reset when '1'
-        
+
         # mgt_gpio[7]   SFP1: PHY0 RESET    PHY reset when '1'
         # mgt_gpio[6]   SFP1: MDIO Enable   Enable MDIO mode when '1'
-        # mgt_gpio[5]   Unused 
+        # mgt_gpio[5]   Unused
         # ENABLE SW CONTROL => mgt_gpio[4]   SFP0: MDIO          MDIO data line
-        
+
         # ENABLE SW CONTROL => mgt_gpio[3]   SFP0: MDC           MDIO clock line
         # mgt_gpio[2]   SFP0: PHY1 RESET    PHY reset when '1'
         # mgt_gpio[1]   SFP0: PHY0 RESET    PHY reset when '1'
@@ -46,7 +50,7 @@ class Sfp_mezzanine_card(object):
         #print 'WRITE card(%i) phy(%i) chan(%i) address(0x%04x) mapped_address(0x%04x) data(0x%04x)' % (self.slot, phy, channel, address, mapped_address, data)
         #sys.stdout.flush()
         return self._mdio_sw_rw(phy = phy, channel = channel, address = address, mapped_address = mapped_address, writedata = data)
-    
+
     def mdio_sw_read(self, phy, channel, address, mapped_address):
         #print 'READ card(%i) phy(%i) chan(%i) address(0x%04x) mapped_address(0x%04x)' % (self.slot, phy, channel, address, mapped_address)
         #sys.stdout.flush()
@@ -77,12 +81,12 @@ class Sfp_mezzanine_card(object):
         self.fpga.write_int('sfp_op_type',  operation)
         if address != None:
             self.fpga.write_int('sfp_op_addr',  address)
-        if data != None:  
-            self.fpga.write_int('sfp_op_data',  data) 
+        if data != None:
+            self.fpga.write_int('sfp_op_data',  data)
         self.fpga.write_int('sfp_op_issue', 1)
         if operation == mdio_operations['read']:
             return self.fpga.read_int('sfp_op_result')
-            
+
     def print_regs(self, slave_id, bytes_to_read):
         for phy in self.phys:
             for m in self.modules:
@@ -120,16 +124,16 @@ class Sfp_phy(object):
         self.card.fpga.write_int('sfp_gpio_data_out', phy_value)   # Assert Reset high for all phys
         self.card.fpga.write_int('sfp_gpio_data_out', 0)           # Deassert Reset for all phys
         '''
-        # mgt_gpio[11]  Unused 
+        # mgt_gpio[11]  Unused
         # mgt_gpio[10]  SFP1: MDIO          MDIO data line
         # mgt_gpio[9]   SFP1: MDC           MDIO clock line
         # ENABLE SW RESET => mgt_gpio[8]   SFP1: PHY1 RESET    PHY reset when '1'
-        
+
         # ENABLE SW RESET => mgt_gpio[7]   SFP1: PHY0 RESET    PHY reset when '1'
         # mgt_gpio[6]   SFP1: MDIO Enable   Enable MDIO mode when '1'
-        # mgt_gpio[5]   Unused 
+        # mgt_gpio[5]   Unused
         # mgt_gpio[4]   SFP0: MDIO          MDIO data line
-    
+
         # mgt_gpio[3]   SFP0: MDC           MDIO clock line
         # ENABLE SW RESET => mgt_gpio[2]   SFP0: PHY1 RESET    PHY reset when '1'
         # ENABLE SW RESET => mgt_gpio[1]   SFP0: PHY0 RESET    PHY reset when '1'
@@ -138,7 +142,7 @@ class Sfp_phy(object):
 
     def mdio_sw_write(self, channel, address, mapped_address, data):
         return self.card.mdio_sw_write(phy = self.id, channel=channel, address=address, mapped_address=mapped_address, data=data)
-    
+
     def mdio_sw_read(self, channel, address, mapped_address):
         return self.card.mdio_sw_read(phy = self.id, channel=channel, address=address, mapped_address=mapped_address)
 
@@ -186,7 +190,7 @@ class Sfp_phy(object):
         self.mdio_sw_write(channel = 0, address = 0x1e, mapped_address = 0x7fd6, data = 1 << 12)
         self.mdio_sw_write(channel = 0, address = 0x1e, mapped_address = 0x7fd6, data = (1 << 11) | (1 << 12))
         regdata = self.mdio_sw_read(channel = 0, address = 0x1e, mapped_address = 0x7fd6)
-        #print '(%i,%i): 0x%04x 0x%04x' % (phy, 0, regdata, regdata & 0xff00) 
+        #print '(%i,%i): 0x%04x 0x%04x' % (phy, 0, regdata, regdata & 0xff00)
         while regdata & (1 << 10) != (1 << 10):
             regdata = self.self.mdio_sw_read(channel = 0, address = 0x1e, mapped_address = 0x7fd6)
         return ((regdata & 0xff) * -1.081) + 233.5
@@ -239,38 +243,38 @@ class Sfp_phy(object):
         # VSC8488-15 Datasheet
         # Registers
         # GPIO_1 Config/Status (1Ex0102) (continued)
-        # Bit 15 Traditional GPIO_1 Output Controls whether the pin is in input or output 
-        # Tri-state Control mode. Bit usage applies only when the GPIO 
-        #                   pin is configured as a traditional GPIO pin (bits 
-        #                   2:0=000) 
+        # Bit 15 Traditional GPIO_1 Output Controls whether the pin is in input or output
+        # Tri-state Control mode. Bit usage applies only when the GPIO
+        #                   pin is configured as a traditional GPIO pin (bits
+        #                   2:0=000)
         #                   0: Output mode
-        #                   1: Input mode 
+        #                   1: Input mode
         # Bit 2-0:
-        # Selection 000: Traditional GPIO behavior 
-        #           001: PCS Activity LED output 
-        #           010: WIS Interrupt Output 
-        #           011: Transmit internal signals 
+        # Selection 000: Traditional GPIO behavior
+        #           001: PCS Activity LED output
+        #           010: WIS Interrupt Output
+        #           011: Transmit internal signals
         #           100-111: Reserved for future use.
         """
         self.mdio_sw_write(channel = 0, address = 0x1e, mapped_address = 0x102, data = 1)
         self.mdio_sw_write(channel = 0, address = 0x1e, mapped_address = 0x126, data = 1)
-    
+
     def set_tx_leds(self):
         """ Table 152.
         # VSC8488-15 Datasheet
         # Registers
         # GPIO_1 Config/Status (1Ex0102) (continued)
-        # Bit 15 Traditional GPIO_1 Output Controls whether the pin is in input or output 
-        # Tri-state Control mode. Bit usage applies only when the GPIO 
-        #                   pin is configured as a traditional GPIO pin (bits 
-        #                   2:0=000) 
+        # Bit 15 Traditional GPIO_1 Output Controls whether the pin is in input or output
+        # Tri-state Control mode. Bit usage applies only when the GPIO
+        #                   pin is configured as a traditional GPIO pin (bits
+        #                   2:0=000)
         #                   0: Output mode
-        #                   1: Input mode 
+        #                   1: Input mode
         # Bit 2-0:
-        # Selection 000: Traditional GPIO behavior 
-        #           001: PCS Activity LED output 
-        #           010: WIS Interrupt Output 
-        #           011: Transmit internal signals 
+        # Selection 000: Traditional GPIO behavior
+        #           001: PCS Activity LED output
+        #           010: WIS Interrupt Output
+        #           011: Transmit internal signals
         #           100-111: Reserved for future use.
         """
         self.mdio_sw_write(channel = 0, address = 0x1e, mapped_address = 0x104, data = 1)
@@ -370,7 +374,7 @@ class Sfp_module(object):
         30x0106, 30x0118, 30x011A, 30x010C, 30x010E program whether the pins function as
         two-wire serial interface pins or GPIO
         '''
-        self.phy.sfp_i2c_enable_gpio()  
+        self.phy.sfp_i2c_enable_gpio()
         if slave_address >= 96:
             #raise RuntimeError('SFP registers 96 and above are vendor-specific, so we do not want to be doing anything there.')
             placeholder = True
@@ -440,16 +444,16 @@ class Sfp_module(object):
         """
         raise NotImplementedError('Not used, untested...')
         self.phy.mdio_sw_write(phy = phy, channel = channel, address = 0x1e, mapped_address = 0x8001, data = slave_id)
-        
+
         if isinstance(bytes_to_write, list):
             bytes_to_write = numpy.uint8(bytes_to_write)
         if bytes_to_write.size % 2 != 0:
             raise RuntimeError('Byte array of size %i was passed to function. Must be a multiple of two to fit 16-bit words.' % bytes_to_write.size)
-        
+
         # write all the data required
         for word_ctr in range(0, bytes_to_write.size/2):
             address_to_write = slave_start_address + word_ctr
-            data_to_write = (bytes_to_write[(word_ctr*2)+1] << 8) + (bytes_to_write[word_ctr*2] & 0xff) 
+            data_to_write = (bytes_to_write[(word_ctr*2)+1] << 8) + (bytes_to_write[word_ctr*2] & 0xff)
             print 'Writing SFP register data(0x%04x) to slave address(0x%04x). ' % (data_to_write, address_to_write)
             self.phy.mdio_sw_write(channel = channel, address = 0x1e, mapped_address = 0x8002, data = address_to_write)
             # is the device still busy?
@@ -520,25 +524,25 @@ class Sfp_module(object):
         adc_val = ((regdata[1]) << 8) + regdata[0]
         return_volt = adc_val * 100.0/1e6  # LSB = 100uV
         return return_volt, 'Voltage: %.5fV' % return_volt
-    
+
     def read_tx_bias_current(self):
         regdata = self.read_module_regs(slave_id = 0x51, slave_address = 100, num_bytes_to_read = 4)
         adc_val = ((regdata[1]) << 8) + regdata[0]
         return_mA = adc_val * 2.0/1e6  # LSB = 2uA
         return return_mA, 'TX bias current: %.5fA' % return_mA
-    
+
     def read_tx_power(self):
         regdata = self.read_module_regs(slave_id = 0x51, slave_address = 102, num_bytes_to_read = 4)
         adc_val = ((regdata[1]) << 8) + regdata[0]
         return_mW = adc_val * 0.1/1e6  # LSB = 0.1uW
         return return_mW, 'TX power: %.5fmW' % return_mW
-    
+
     def read_rx_power(self):
         regdata = self.read_module_regs(slave_id = 0x51, slave_address = 104, num_bytes_to_read = 4)
         adc_val = ((regdata[1]) << 8) + regdata[0]
         return_mW = adc_val * 0.1/1e6  # LSB = 0.1uW
         return return_mW, 'RX power: %.5fmW' % return_mW
-    
+
     def read_stat(self):
         regdata = self.read_module_regs(slave_id = 0x51, slave_address = 110, num_bytes_to_read = 4)
         return_string = 'read_stat: 0x%04x' % regdata[0]
@@ -553,7 +557,7 @@ class Sfp_module(object):
         for i in range(16):
             vname += chr(regdata[i])
         return vname
-    
+
     def read_serial_number(self):
         regdata = self.read_module_regs(slave_id = 0x50, slave_address = 68, num_bytes_to_read = 16)
         vname = ''
@@ -563,13 +567,13 @@ class Sfp_module(object):
 
 '''
 MDIO definitions
-'''    
+'''
 mdio_operations = {
                    # LSB signifies EMAC configuration or not.
                    # Bits 2:1 are the MDIO opcodes as described in Table 82
                    # MDIO opcodes
                    'address':      0, # 0b000 - 0 << 1
-                   'write':        2, # 0b010 - 1 << 1    
+                   'write':        2, # 0b010 - 1 << 1
                    'rd_addr_inc':  4, # 0b100 - 2 << 1
                    'read':         6, # 0b110 - 3 << 1
                    # EMAC configuration
@@ -584,7 +588,7 @@ phy num 1 = phy 0, channel 1
 phy num 2 = phy 1, channel 0
 phy num 3 = phy 1, channel 1
 '''
-phy_num_to_phy_and_channel = {0:(0,0), 
+phy_num_to_phy_and_channel = {0:(0,0),
                               1:(0,1),
                               2:(1,0),
                               3:(1,1),}

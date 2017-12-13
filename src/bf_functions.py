@@ -3,9 +3,9 @@
 Selection of commonly-used beamformer control functions.
 
 Author: Jason Manley, Andrew Martens, Ruby van Rooyen
-"""
-"""
+Modified: Dean Shaff
 Revisions:
+2017-12-13 PEP 8 compliance
 2012-10-02 JRM Initial
 2013-02-10 AM basic boresight
 2013-02-11 AM basic SPEAD
@@ -13,11 +13,18 @@ Revisions:
 2013-03-01 AM calibration
 2013-03-02 RR fbfExceptions
 2013-03-05 AM SPEAD metadata
-\n"""
+"""
 
-import corr, numpy, logging, struct, socket
-import spead64_48 as spead
+import logging
+import struct
+import socket
 import inspect
+
+import numpy
+import spead64_48 as spead
+
+from . import corr_functions
+
 
 class fbfException(Exception):
     def __init__(self, errno, msg, trace=None, logger=None):
@@ -28,7 +35,7 @@ class fbfException(Exception):
         if logger:
             logger.error('BFError: %s\n%s' % (msg, trace))
 
-class fbf:
+class fbf(object):
     """Class for frequency-domain beamformers"""
     def __init__(self, host_correlator, log_level=logging.INFO, simulate=False, optimisations=True):
         self.c = host_correlator
@@ -427,7 +434,7 @@ class fbf:
                     if self.config.simulate == True:
                         print 'dummy executing non-blocking request for write to %s on %d fpgas' % (name, len(fpgas))
                     else:
-                        nottimedout, rv = corr.corr_functions.non_blocking_request(fpgas=fpgas, timeout=timeout,
+                        nottimedout, rv = corr_functions.non_blocking_request(fpgas=fpgas, timeout=timeout,
                                                                                    request='write',
                                                                                    request_args=[name, offset*4, datum])
                         if nottimedout == False:
@@ -1387,4 +1394,3 @@ class fbf:
         self.spead_eq_meta_issue(beams)
         self.spead_cal_meta_issue(beams=beams, from_fpga=from_fpga)
         self.spead_labelling_issue(beams)
-

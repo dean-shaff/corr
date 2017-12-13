@@ -1,5 +1,13 @@
-"""Module for performing various katadc functions from software"""
-import numpy,struct,time
+"""
+Module for performing various katadc functions from software
+
+@modified Dean Shaff <dean.shaff@gmail.com>
+@Revised 2017/12/13 for PEP 8 compliance, and modernization
+"""
+
+import numpy
+import struct
+import time
 
 WR = 0x0 << 0
 RD = 0x1 << 0
@@ -71,14 +79,14 @@ def _eeprom_read(fpga,katadc_n,n_bytes,offset=0):
             #print '%4X'%struct.unpack('>L',fpga.read(iic_controller,4,0x8))
         fpga.blindwrite(iic_controller,'%c%c%c%c'%(0x0,0x00, RD | STOP, 0), offset=0x0)
         #check for OP buffer overflow:
-        #   Bit[0] RXFIFO empty flag 
-        #   Bit[1] RXFIFO full flag 
-        #   Bit[2] RXFIFO overflow error latch 
-        #   Bit[4] OPFIFO empty flag 
-        #   Bit[5] OPFIFO full flag 
-        #   Bit[6] OPFIFO overflow error latch 
+        #   Bit[0] RXFIFO empty flag
+        #   Bit[1] RXFIFO full flag
+        #   Bit[2] RXFIFO overflow error latch
+        #   Bit[4] OPFIFO empty flag
+        #   Bit[5] OPFIFO full flag
+        #   Bit[6] OPFIFO overflow error latch
         #   Bit[8] NACK on write error latch
-        if bool(struct.unpack('>L',fpga.read(iic_controller,4,0x8))[0]&int('1100110',2)): 
+        if bool(struct.unpack('>L',fpga.read(iic_controller,4,0x8))[0]&int('1100110',2)):
             #fpga.blindwrite(iic_controller,'%c%c%c%c'%(0xff,0xff,0xff,0xff),offset=0x8)
             raise RuntimeError("Sorry, you requested too many bytes and the IIC controller's buffer overflowed.")
         # Unblock Fifo
@@ -104,12 +112,12 @@ def _eeprom_read(fpga,katadc_n,n_bytes,offset=0):
 #        # Write IIC register value
 #        fpga.blindwrite(iic_controller,'%c%c%c%c'%(0x0,0x00, WR | STOP, c), offset=0x0)
 #    #check for OP buffer overflow:
-#    #   Bit[0] RXFIFO empty flag 
-#    #   Bit[1] RXFIFO full flag 
-#    #   Bit[2] RXFIFO overflow error latch 
-#    #   Bit[4] OPFIFO empty flag 
-#    #   Bit[5] OPFIFO full flag 
-#    #   Bit[6] OPFIFO overflow error latch 
+#    #   Bit[0] RXFIFO empty flag
+#    #   Bit[1] RXFIFO full flag
+#    #   Bit[2] RXFIFO overflow error latch
+#    #   Bit[4] OPFIFO empty flag
+#    #   Bit[5] OPFIFO full flag
+#    #   Bit[6] OPFIFO overflow error latch
 #    #   Bit[8] NACK on write error latch
 #    if bool(ord(fpga.read(iic_controller,4,12)[0])&0b10000): raise RuntimeError("Sorry, you requested too many bytes and the IIC controller's buffer overflowed.")
 #    # Unblock Fifo
@@ -134,8 +142,8 @@ def _eeprom_write(fpga,katadc_n,eeprom_bin):
     """Generic write of raw bytestream into the IIC EEPROM."""
     if not katadc_n in [0,1]: raise RuntimeError("katadc_n must be 0 or 1. Please select your ZDok port.")
     for n,c in enumerate(eeprom_bin):
-       iic_write_register(fpga,katadc_n,0x51,n,c) 
-        
+       iic_write_register(fpga,katadc_n,0x51,n,c)
+
 def eeprom_details_get(fpga,katadc_n,fetch_cal=False):
     """Retrieves data from the EEPROM and unpacks it. Returns a dictionary."""
     if not katadc_n in [0,1]: raise RuntimeError("katadc_n must be 0 or 1. Please select your ZDok port.")
@@ -158,7 +166,7 @@ def eeprom_details_set(fpga,katadc_n,serial_number,pcb_rev,adc_ic_id,rf_fe_id,ca
     if not katadc_n in [0,1]: raise RuntimeError("katadc_n must be 0 or 1. Please select your ZDok port.")
     raw_str=struct.pack('>8H',serial_number,pcb_rev,adc_ic_id,rf_fe_id,0,0,0,0)+str(cal_data)
     _eeprom_write(fpga,katadc_n,raw_str)
-    
+
 
 def spi_write_register(fpga,katadc_n,reg_addr,reg_value):
     """Writes to a register from the ADC via SPI (two bytes at a time)."""
@@ -253,8 +261,8 @@ def rf_fe_get(fpga,katadc_n,input_sel):
     else: raise RuntimeError("Invalid input selection. Must be 'I' or 'Q'.")
     bitmap=iic_read_register(fpga,katadc_n,0x20+pol,2)
     return {'enabled': bool(bitmap>>7),
-            'gain': -11.5+(bitmap&0x3f)/2.} 
- 
+            'gain': -11.5+(bitmap&0x3f)/2.}
+
 def gpio_header_get(fpga,katadc_n):
     for pol in range(2):
         print "IIC GPIO expansion on ADC%i's %s input:"%(katadc_n,{0:'Q',1:'I'}[pol])
@@ -283,31 +291,31 @@ mw d0040000 298; # START, WRITE, DATA=0x98 (4C << 1 + 0x0(IIC WRITE)) mw d004000
 mw d0040000 298; mw d0040000 000; mw d0040000 299; mw d0040000 500; md d0040004 1;
 
 To Access ADC Temperature on TMP421 (IIC ADDR 0x4C, REGISTER ADDR 0x1)
-    mw d0040000 298; # START, WRITE, DATA=0x98 (4C << 1 + 0x0(IIC WRITE)) 
-    mw d0040000 001; # WRITE, DATA=0x01 (Register Address) 
-    mw d0040000 299; # START(REPEATED), WRITE, DATA=0x99 (4C << 1 + 0x1(IIC READ)) 
-    mw d0040000 500; # STOP, READ 
+    mw d0040000 298; # START, WRITE, DATA=0x98 (4C << 1 + 0x0(IIC WRITE))
+    mw d0040000 001; # WRITE, DATA=0x01 (Register Address)
+    mw d0040000 299; # START(REPEATED), WRITE, DATA=0x99 (4C << 1 + 0x1(IIC READ))
+    mw d0040000 500; # STOP, READ
     md d0040004 1; # Read Data from RXFIFO
 
 To Write EEPROM DATA (IIC ADDR 0x51, ADDR 0x4, DATA 0xDEADBEEF)
-    mw d0040000 2A2; # START, WRITE, DATA=0xA2 (0x51 << 1 + 0x0(IIC WRITE)) 
-    mw d0040000 004; # WRITE, DATA=0x04 (Register Address) 
-    mw d0040000 0de; # WRITE, DATA=0xde 
+    mw d0040000 2A2; # START, WRITE, DATA=0xA2 (0x51 << 1 + 0x0(IIC WRITE))
+    mw d0040000 004; # WRITE, DATA=0x04 (Register Address)
+    mw d0040000 0de; # WRITE, DATA=0xde
     mw d0040000 0ad; # WRITE, DATA=0xad
-    mw d0040000 0be; # WRITE, DATA=0xbe 
+    mw d0040000 0be; # WRITE, DATA=0xbe
     mw d0040000 4ef; # WRITE, DATA=0xef
 
 To READ EEPROM DATA (IIC ADDR 0x51, ADDR 0x4)
     (IIC ADDR 0x51, ADDR 0x4)
-    mw d0040000 2A2; # START, WRITE, DATA=0xA2 (0x51 << 1 + 0x0(IIC WRITE)) 
-    mw d0040000 004; # WRITE, DATA=0x04 (Register Address) 
-    mw d0040000 2A3; # START(REP),WRITE, DATA=0xA2 (0x51 << 1 + 0x1(IIC READ)) 
-    mw d0040000 100; # READ 
-    mw d0040000 100; # READ 
-    mw d0040000 100; # READ 
-    mw d0040000 500; # STOP, READ 
-    md d0040004 1;  
-    md d0040004 1; 
-    md d0040004 1; 
+    mw d0040000 2A2; # START, WRITE, DATA=0xA2 (0x51 << 1 + 0x0(IIC WRITE))
+    mw d0040000 004; # WRITE, DATA=0x04 (Register Address)
+    mw d0040000 2A3; # START(REP),WRITE, DATA=0xA2 (0x51 << 1 + 0x1(IIC READ))
+    mw d0040000 100; # READ
+    mw d0040000 100; # READ
+    mw d0040000 100; # READ
+    mw d0040000 500; # STOP, READ
+    md d0040004 1;
+    md d0040004 1;
+    md d0040004 1;
     md d0040004 1;
 """

@@ -1,5 +1,7 @@
-"""Code for receiving data from correlators and storing in HDF5 file. Will also send a copy to realtime signal display."""
-"""Revs:
+"""Code for receiving data from correlators and storing in HDF5 file. Will also send a copy to realtime signal display.
+Revs:
+2017-12-13  PEP 8 compliance. Got rid of absolute imports, instead opting for
+                relative imports
 2011-12-12  JRM Metadata propagation to SD.
                 Datatype propagation through to SD
                 min/max value logging (was not scaling back).
@@ -9,17 +11,19 @@
 
 import threading
 import numpy as np
-import spead64_48 as spead
 import logging
 import sys
 import time
+
 import h5py
-import corr
+import spead64_48 as spead
+
+from . import log_handlers
 
 class CorrRx(threading.Thread):
     def __init__(self, mode = 'cont', port=7148, log_handler = None, log_level = logging.INFO, spead_log_level = logging.WARN, **kwargs):
         if log_handler == None:
-            log_handler = corr.log_handlers.DebugLogHandler(100)
+            log_handler = log_handlers.DebugLogHandler(100)
         self.log_handler = log_handler
         self.logger = logging.getLogger('rx')
         self.logger.addHandler(self.log_handler)
@@ -310,4 +314,3 @@ class CorrRx(threading.Thread):
         sd_frame = None
         sd_slots = None
         ig_sd = None
-

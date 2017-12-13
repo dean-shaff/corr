@@ -1,6 +1,11 @@
-"""Module for performing various iADC functions from software. 
-Author: Jason Manley, using code segments from Hong Chen and David George."""
-import numpy,struct,time
+"""
+Module for performing various iADC functions from software.
+Author: Jason Manley, using code segments from Hong Chen and David George.
+"""
+import struct
+import time
+
+import numpy
 
 def spi_write_register(fpga,zdok_n,reg_addr,reg_value):
     """Writes to a register from the ADC via SPI (two bytes at a time)."""
@@ -18,21 +23,21 @@ def rst(fpga,zdok_n):
 
 def set_mode(fpga,mode='SPI'):
     """Sets the MODE pin on the iADCs. mode='SPI' allows for software control (you need to set this before you an issue any other commands), else 'GW' for gateware autoconf else use ADC hardware defaults:
-        * Dual channel I and Q activated 
-        * One clock I 
-        * 0 dB gain 
+        * Dual channel I and Q activated
+        * One clock I
+        * 0 dB gain
         * DMUX mode 1:1
-        * DRDA I & Q = 0 ps 
-        * ISA I & Q = 0 ps 
-        * FiSDA Q = 0 ps 
-        * Cal = 0 
-        * Decimation test mode OFF 
-        * Calibration setting OFF 
+        * DRDA I & Q = 0 ps
+        * ISA I & Q = 0 ps
+        * FiSDA Q = 0 ps
+        * Cal = 0
+        * Decimation test mode OFF
+        * Calibration setting OFF
         * Data Ready = Fs/4"""
     if mode =='SPI':    fpga.blindwrite('iadc_controller','%c%c%c%c'%(0x0,0x00,0x03,0x00))
     elif mode =='GW':    fpga.blindwrite('iadc_controller','%c%c%c%c'%(0x0,0x00,0x30,0x00))
     else:    fpga.blindwrite('iadc_controller','%c%c%c%c'%(0x0,0x00,0x00,0x00))
-    
+
 #register 0x00:
 # 0-1:  standby modes
 # 2     Chip version test bit. Not implemented on A/B versions (C only). Ignore.
@@ -47,7 +52,7 @@ def set_mode(fpga,mode='SPI'):
 # 15    NA
 
 def configure(fpga,zdok_n,mode='indep',cal='new',clk_speed=800):
-    """fpga is an FpgaClient object; 
+    """fpga is an FpgaClient object;
         zdok_n is the adc number (0,1);
         mode in ('indep','inter_Q','inter_I');
         input select is 'I' or 'Q';
@@ -55,7 +60,7 @@ def configure(fpga,zdok_n,mode='indep',cal='new',clk_speed=800):
         clk_speed is in MHz and is used for auto-phase calibration.
         cal in ('new','old','zero')"""
     if not zdok_n in [0,1]: raise RuntimeError("zdok_n must be 0 or 1. Please select your ZDok port.")
-    clk_bits = 0 if clk_speed<125 else 1 if (clk_speed<250) else 2 if (clk_speed<500) else 3 
+    clk_bits = 0 if clk_speed<125 else 1 if (clk_speed<250) else 2 if (clk_speed<500) else 3
     cal_bits = 0 if cal=='zero' else 1 if cal=='old' else 3 #if cal=='new' else raise RuntimeError ('bad cal option')
     mode_bits = 0x2 if mode=='inter_I' else 0 if mode=='inter_Q' else 0xB
     spi_write_register(fpga,zdok_n,0x0,(1<<14)+(clk_bits<<12)+(cal_bits<<10)+(mode_bits<<4)+(1<<3)+(1<<2))
@@ -103,4 +108,3 @@ def fisda_Q_adj(fpga,zdock_n,delay=0):
     sign = 1 if delay<0 else 0
     print 'Writing %4x'%((sign<<10) + (bits<<6))
     spi_write_register(fpga,zdok_n,0x7,(sign<<10) + (bits<<6))
-    

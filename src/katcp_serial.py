@@ -1,16 +1,28 @@
-"""Client for communicating with a the PPCs 2nd Serial Port over KATCP.
+"""
+Client for communicating with a the PPCs 2nd Serial Port over KATCP.
 
-   @author Simon Cross <simon.cross@ska.ac.za>
-   @modified Jason Manley <jason_manley@hotmail.com>
-   @Revised 2010/11/08 to log incomming log informs
-   @Revised 2010/06/28 to include qdr stuff
-   @Revised 2010/01/07 to include bulkread
-   @Revised 2009/12/01 to include print 10gbe core details.
-   """
+@author Simon Cross <simon.cross@ska.ac.za>
+@modified Jason Manley <jason_manley@hotmail.com>
+@Revised 2017/12/13 to better comply with PEP 8 standards
+@Revised 2010/11/08 to log incomming log informs
+@Revised 2010/06/28 to include qdr stuff
+@Revised 2010/01/07 to include bulkread
+@Revised 2009/12/01 to include print 10gbe core details.
+"""
 
-import struct, re, threading, socket, select, traceback, logging, sys, time, os
+import struct
+import re
+import threading
+import socket
+import select
+import traceback
+import logging
+import sys
+import time
+import os
 
-from katcp import *
+from katcp import CallbackClient, SerialClient, FpgaAsyncRequest, Message
+
 log = logging.getLogger("katcp")
 
 
@@ -121,7 +133,7 @@ class SerialClient(CallbackClient):
 
     def _request(self, name, *args):
         """Make a blocking request and check the result.
-        
+
            Raise an error if the reply indicates a request failure.
 
            @param self  This object.
@@ -168,7 +180,7 @@ class SerialClient(CallbackClient):
         assert (smoothing in range(1,65)), "Can only smooth between 1 and 64 samples!"
         assert (pin in range(8)), "Invalid analogue pin selected. Choose in range(0,8)!"
         return int(self._request("geta",int(pin),int(smoothing)).arguments[1])
-        
+
     def getd(self,pin):
         """Gets a boolean value on a digital IO pin."""
         return int(self._request("getd",int(pin)).arguments[1])

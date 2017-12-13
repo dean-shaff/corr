@@ -1,7 +1,7 @@
 from distutils.core import setup, Extension
 import os, sys, glob
 
-__version__ = '0.7.3'
+from src import __version__
 
 katcp_prefix = '/'
 if os.environ.has_key('VIRTUAL_ENV'):
@@ -32,4 +32,3 @@ setup(name = 'corr',
                 #('/var/run/corr',['support_files/sync_time'])
                 ]
 )
-

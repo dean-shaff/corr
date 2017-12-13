@@ -1,15 +1,17 @@
 # pylint: disable-msg=C0301
 # pylint: disable-msg=E1101
 """
-Playing with ncurses in Python to scroll up and down, left and right, through a list of data that is periodically refreshed.
+Playing with ncurses in Python to scroll up and down, left and right, through a
+list of data that is periodically refreshed.
 
 Revs:
+2017-12-13  Added PEP 8 compliance
 2010-12-11  JRM Added concat for status line to prevent bailing on small terminals.
                 Code cleanup to prevent modification of external variables.
                 Added left, right page controls
 """
-
-import curses, types
+import curses
+import types
 
 def screen_teardown():
     '''Restore sensible options to the terminal upon exit

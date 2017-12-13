@@ -4,11 +4,14 @@
    @Revised 2012/09/13 first release
    """
 
-import serial, logging, sys, time, os
+import serial
+import logging
+import sys
+import time
+import os
 
 from katcp import *
 log = logging.getLogger("katcp_gpio")
-
 
 class GpioClient():
     """Client for communicating with a GPIO board. Nasty hard-coded KATCP stuff.
@@ -39,7 +42,7 @@ class GpioClient():
 
     def _request(self, name, *args):
         """Make a blocking request and check the result.
-        
+
            Raise an error if the reply indicates a request failure.
 
            @param self  This object.
@@ -71,7 +74,7 @@ class GpioClient():
         self.strm.write('\r')
 
     def _read(self):
-        """Gets a single line from the serial port, handles the reply and returns a message object.""" 
+        """Gets a single line from the serial port, handles the reply and returns a message object."""
         ln=self.strm.readline().strip()
         #print 'Got: %s'%ln
         if len(ln)>0:
@@ -79,7 +82,7 @@ class GpioClient():
         else:
             self._logger.error("Reply timed out.")
             raise RuntimeError("Reply timed out.")
-            
+
     def ping(self):
         """Tries to ping the FPGA.
            @param self  This object.
@@ -107,7 +110,7 @@ class GpioClient():
         assert (smoothing in range(1,65)), "Can only smooth between 1 and 64 samples!"
         assert (pin in range(8)), "Invalid analogue pin selected. Choose in range(0,8)!"
         return int(self._request("geta",int(pin),int(smoothing)).arguments[1])
-        
+
     def getd(self,pin):
         """Gets a boolean value on a digital IO pin."""
         return int(self._request("getd",int(pin)).arguments[1])
@@ -120,4 +123,3 @@ class GpioClient():
             self.setd(clk_pin,1)
             self.setd(clk_pin,0)
         self.setd(le_pin,1)
-

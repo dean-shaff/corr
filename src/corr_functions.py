@@ -51,8 +51,18 @@ Revisions:
 2009-06-26  JRM UNDER CONSTRUCTION.
 \n"""
 
-import corr, time, sys, numpy, logging, struct, construct, socket, os
+import time
+import sys
+import numpy
+import logging
+import struct
+import socket
+import os
+
+import construct
 import spead64_48 as spead
+
+from . import corr_wb, corr_nb, katcp_wrapper, katadc, snap, log_handlers
 
 CORR_MODE_WB = 'wbc'
 CORR_MODE_NB = 'nbc'
@@ -219,7 +229,9 @@ katcp_prefix = '/'
 if os.environ.has_key('VIRTUAL_ENV'):
     katcp_prefix = os.environ['VIRTUAL_ENV']
 default_config = os.path.join(katcp_prefix, 'etc/corr/default')
-class Correlator:
+
+class Correlator(object):
+
     def __init__(self, connect = True, config_file = default_config, log_handler = None, log_level = logging.INFO):
         global default_config
         self.log_handler = log_handler if log_handler != None else corr.log_handlers.DebugLogHandler(100)
@@ -2505,5 +2517,3 @@ def dbm_to_v(dbm):
 
 def v_to_dbm(v):
     return 10*numpy.log10(v*v/50.*1000)
-
-

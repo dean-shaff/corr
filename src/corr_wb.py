@@ -8,7 +8,7 @@ Revisions:
 """
 import construct
 
-from . import corr_functions
+import corr_functions
 
 # f-engine control register
 register_fengine_control = construct.BitStruct('control',

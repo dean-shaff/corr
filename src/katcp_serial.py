@@ -21,7 +21,8 @@ import sys
 import time
 import os
 
-from katcp import CallbackClient, SerialClient, FpgaAsyncRequest, Message
+from katcp import *
+# CallbackClient, FpgaAsyncRequest, Message
 
 log = logging.getLogger("katcp")
 

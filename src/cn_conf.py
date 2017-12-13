@@ -24,7 +24,6 @@ Revs:
                 Changed max_payload_len to rx_buffer_size
 
 """
-import iniparse
 import exceptions
 import socket
 import struct
@@ -32,6 +31,7 @@ import os
 import logging
 
 import numpy
+import iniparse
 
 from . import log_handlers
 

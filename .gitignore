@@ -13,6 +13,6 @@ Thumbs.db
 *.exe
 *.o
 *.so
-+build/
 *.egg-info
 *.pyc
+build/

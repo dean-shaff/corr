@@ -11,7 +11,7 @@ import snap
 
 import construct
 
-from . import corr_functions
+import corr_functions
 
 def bin2fp(bits, m = 8, e = 7):
     if m > 32:

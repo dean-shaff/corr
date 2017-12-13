@@ -10,4 +10,20 @@ Revisions: Dean Shaff, 2017
 """
 __version__ = "0.8.0"
 
-# import cn_conf, katcp_wrapper, katcp_serial, log_handlers, corr_functions, bf_functions, corr_wb, corr_nb, corr_ddc, scroll, katadc, iadc, termcolors, rx, sim, snap, threaded
+# import corr_wb
+# import corr_nb
+# import cn_conf
+# import katcp_wrapper
+# import katcp_serial
+# import log_handlers
+# import corr_functions
+# import bf_functions
+# import corr_ddc
+# import scroll
+# import katadc
+# import iadc
+# import termcolors
+# import rx
+# import sim
+# import snap
+# import threaded

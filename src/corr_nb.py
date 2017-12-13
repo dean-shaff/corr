@@ -514,7 +514,7 @@ def get_snap_adc(c, fpgas = [], wait_period = 3):
     2 pols, each one 4 parallel samples f8.7. So 64-bits total.
     """
     raw = snap.snapshots_get(fpgas = fpgas, dev_names = snap_adc, wait_period = wait_period)
-    repeater = construct.GreedyRepeater(snap_fengine_adc)
+    repeater = construct.GreedyRange(snap_fengine_adc)
     rv = []
     for index, d in enumerate(raw['data']):
         upd = repeater.parse(d)
@@ -535,7 +535,7 @@ def get_snap_adc_DUMB(c, fpgas = [], wait_period = 3):
     2 pols, each one 4 parallel samples f8.7. So 64-bits total.
     """
     raw = snap.snapshots_get(fpgas = fpgas, dev_names = snap_adc, wait_period = wait_period)
-    repeater = construct.GreedyRepeater(snap_fengine_adc)
+    repeater = construct.GreedyRange(snap_fengine_adc)
     rv = []
     for index, d in enumerate(raw['data']):
         data = [[],[]]
@@ -603,7 +603,7 @@ def get_snap_coarse_fft(c, fpgas = [], pol = 0, setup_snap = True):
     rd = []
     for ctr in range(0, len(snap_data['data'])):
         d = snap_data['data'][ctr]
-        repeater = construct.GreedyRepeater(snap_fengine_debug_coarse_fft)
+        repeater = construct.GreedyRange(snap_fengine_debug_coarse_fft)
         up = repeater.parse(d)
         coarsed = []
         for a in up:
@@ -629,7 +629,7 @@ def get_snap_coarse_channel(c, fpgas = [], pol = 0, channel = -1, setup_snap = T
     rd = []
     for ctr in range(0, len(snap_data['data'])):
         d = snap_data['data'][ctr]
-        repeater = construct.GreedyRepeater(snap_fengine_debug_coarse_fft)
+        repeater = construct.GreedyRange(snap_fengine_debug_coarse_fft)
         up = repeater.parse(d)
         coarsed = []
         for a in up:
@@ -656,7 +656,7 @@ def get_snap_buffer_pfb(c, fpgas = [], pol = 0, setup_snap = True, pfb = False):
     rd = []
     for ctr in range(0, len(snap_data['data'])):
         d = snap_data['data'][ctr]
-        repeater = construct.GreedyRepeater(snap_fengine_debug_coarse_fft)
+        repeater = construct.GreedyRange(snap_fengine_debug_coarse_fft)
         up = repeater.parse(d)
         coarsed = []
         for a in up:
@@ -685,7 +685,7 @@ def get_snap_buffer_pfb(c, fpgas = [], pol = 0, setup_snap = True, pfb = False):
 #    rd = []
 #    for ctr in range(0, len(snap_data['data'])):
 #        d = snap_data['data'][ctr]
-#        repeater = construct.GreedyRepeater(snap_fengine_debug_fine_fft_tvg)
+#        repeater = construct.GreedyRange(snap_fengine_debug_fine_fft_tvg)
 #        up = repeater.parse(d)
 #        fdata = []
 #        for a in up:
@@ -705,7 +705,7 @@ def get_snap_fine_fft(c, fpgas = [], offset = -1, setup_snap = True):
     rd = []
     for ctr in range(0, len(snap_data['data'])):
         d = snap_data['data'][ctr]
-        repeater = construct.GreedyRepeater(snap_fengine_debug_fine_fft)
+        repeater = construct.GreedyRange(snap_fengine_debug_fine_fft)
         up = repeater.parse(d)
         fdata_p0 = []
         fdata_p1 = []
@@ -758,7 +758,7 @@ def _fpga_snap_quant(fpga = None, offset = -1, wbc_compat = False, debug_data = 
     _log('unpacking data.')
     data = [[], []]
     if not wbc_compat:
-        repeater = construct.GreedyRepeater(snap_fengine_debug_quant)
+        repeater = construct.GreedyRange(snap_fengine_debug_quant)
         unpacked = repeater.parse(snap_data)
         for ctr in unpacked:
             p0c = bin2fp(ctr['p0_r'], 4, 3) + (1j * bin2fp(ctr['p0_i'], 4, 3))
@@ -798,7 +798,7 @@ def get_snap_ct(c, fpgas = [], offset = -1, setup_snap = True):
     rd = []
     for ctr in range(0, len(snap_data['data'])):
         d = snap_data['data'][ctr]
-        repeater = construct.GreedyRepeater(snap_fengine_debug_ct)
+        repeater = construct.GreedyRange(snap_fengine_debug_ct)
         up = repeater.parse(d)
         fdata_p0 = []
         fdata_p1 = []
@@ -840,7 +840,7 @@ def get_snap_feng_10gbe(c, fpgas = [], offset = -1,  man_trigger = False, man_va
     rd = []
     for ctr in range(0, len(snap_data['data'])):
         d = snap_data['data'][ctr]
-        repeater = construct.GreedyRepeater(snap_fengine_gbe_tx)
+        repeater = construct.GreedyRange(snap_fengine_gbe_tx)
         up = repeater.parse(d)
         for a in up:
             a['link_down'] = not a['link_up']

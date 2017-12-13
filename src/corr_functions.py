@@ -134,7 +134,7 @@ def write_masked_register(device_list, bitstruct, names = None, **kwargs):
         #print 'Pulsing keys from write_... :(', pulse_keys
         pulse_masked_register(device_list, bitstruct, pulse_keys)
 
-def read_masked_register(device_list, bitstruct, names = None, return_dict = True):
+def read_masked_register(device_list, bitstruct, names=None, return_dict=True):
     """
     Read a 32-bit register from each of the devices (anything that provides the read_uint interface) in the supplied list and apply the given construct.BitStruct to the data.
     A list of Containers or dictionaries is returned, indexing the same as the supplied list.

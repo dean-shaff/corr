@@ -12,8 +12,7 @@ import logging
 import numpy
 import construct
 
-import corr_nb
-import corr_wb
+from . import corr_nb, corr_wb
 
 def snapshots_arm(fpgas, dev_names, man_trig, man_valid, offset, circular_capture):
     if offset >=0:
